@@ -1,0 +1,1057 @@
+#!/bin/bash
+if [[ ! -f /etc/lspacks/lspacks.vars ]]
+	    then
+		echo "Hello $USR, i am LsPacks"
+echo "Is your computer running Slackware 64bit or Slackware 32bit?
+(Answer 32 or 64)"
+read ARCH
+if [[ $ARCH = 32 ]]
+then echo
+     "Oh... i see...
+i'm a bit unstable on 32 bit, i can still install packages for you but some packages might not run properly"
+else echo "
+Oh thank god, you use 64 bit Slackware, i'm not gonna lie, i'm a bit unstable on 32 bit, don't worry though, i work perfectly on 64 bit slackware :)"
+fi
+     echo "ok, which version of $ARCH bit Slackware do you use?
+(answer with the version number EG. 14.1, 14.2, 14.0 ETC)"
+read VERSION
+if [[ $VERSION == "14.2" ]]
+then echo "Excellent, i can't work on other versions of Slackware as of now"
+else echo "I'm sorry, i'm currently unable to work properly on versions other than 14.2...
+don't worry though, my creator is working tirelessly to teach me how to work on other Slackware versions"
+     exit
+fi
+if [[ ! -d /etc/lspacks ]]
+then
+    sudo mkdir /etc/lspacks/
+    sudo mkdir /etc/lspacks/installedfiles/
+    sudo mkdir /etc/lspacks/repos/
+    sudo chmod 777 -R /etc/lspacks/
+    if [[ ! -f /bin/lspacks ]]
+    then
+	sudo cp ./lspacks /bin/lspacks
+	sudo chmod 777 /bin/lspacks
+    fi
+fi
+	echo "
+ARCH=$ARCH
+PROPRIETARY_CODECS=1
+PYTHON3=1
+VERSION=$VERSION
+DEBUG_MODE=1
+
+" >> /etc/lspacks/lspacks.vars
+sudo chmod 777 /etc/lspacks/lspacks.vars
+echo "
+REPONAME='Official SlackBuilds 14.2 Repository'
+REPO_GIT_URL='git://git.slackbuilds.org/slackbuilds.git'
+REPO_ROOT_DIR=slackbuilds
+SUB_DIR_NUM=19
+PACK_DIR_1=academic
+PACK_DIR_2=accessibility
+PACK_DIR_3=audio
+PACK_DIR_4=desktop
+PACK_DIR_5=development
+PACK_DIR_6=games
+PACK_DIR_7=gis
+PACK_DIR_8=graphics
+PACK_DIR_9=ham
+PACK_DIR_10=haskell
+PACK_DIR_11=libraries
+PACK_DIR_12=misc
+PACK_DIR_13=multimedia
+PACK_DIR_14=network
+PACK_DIR_15=office
+PACK_DIR_16=perl
+PACK_DIR_17=python
+PACK_DIR_18=ruby
+PACK_DIR_19=system
+" >> /etc/lspacks/repos/repo1.conf
+sudo chmod 777 /etc/lspacks/repos/repo1.conf
+echo "I will need to sync my repos, tell me to do so with the following command:
+lspacks -s" 
+exit
+fi
+while getopts ":s :i: :v :c :R" opt; do
+    case ${opt} in
+	s )
+	    USR="$(whoami)"
+	    if [[ $USR = root ]]
+	    then
+		echo "I WILL NOT INITIATE THE SNAPPER PROCESS FOR ROOT!!"
+     exit
+fi
+CHECK_AND_DELETE() {
+if [[ -f /etc/lspacks/repos/repo$R_NUM.conf ]]
+then
+    source /etc/lspacks/repos/repo$R_NUM.conf
+    if [[ -d /etc/lspacks/repos/$REPO_ROOT_DIR ]]
+    then
+	echo "I'm deleting your old $REPONAME directory"
+	sudo rm -R /etc/lspacks/repos/$REPO_ROOT_DIR
+	echo "I've deleted your old $REPONAME directory"
+    fi
+fi }
+R_NUM=1
+CHECK_AND_DELETE
+R_NUM=2
+CHECK_AND_DELETE
+R_NUM=3
+CHECK_AND_DELETE
+R_NUM=4
+CHECK_AND_DELETE
+R_NUM=5
+CHECK_AND_DELETE
+R_NUM=6
+CHECK_AND_DELETE
+R_NUM=7
+CHECK_AND_DELETE
+R_NUM=8
+CHECK_AND_DELETE
+R_NUM=9
+CHECK_AND_DELETE
+R_NUM=10
+CHECK_AND_DELETE
+R_NUM=11
+CHECK_AND_DELETE
+R_NUM=12
+CHECK_AND_DELETE
+R_NUM=13
+CHECK_AND_DELETE
+R_NUM=14
+CHECK_AND_DELETE
+R_NUM=15
+CHECK_AND_DELETE
+CHECK_AND_SYNC(){
+if [[ -f /etc/lspacks/repos/repo$R_NUM.conf ]]
+then
+    source /etc/lspacks/repos/repo$R_NUM.conf
+    git clone $REPO_GIT_URL
+    sudo chmod -R 777 /etc/lspacks/repos/$REPO_ROOT_DIR
+fi }
+R_NUM=1
+CHECK_AND_SYNC
+R_NUM=2
+CHECK_AND_SYNC
+R_NUM=3
+CHECK_AND_SYNC
+R_NUM=4
+CHECK_AND_SYNC
+R_NUM=5
+CHECK_AND_SYNC
+R_NUM=6
+CHECK_AND_SYNC
+R_NUM=7
+CHECK_AND_SYNC
+R_NUM=8
+CHECK_AND_SYNC
+R_NUM=9
+CHECK_AND_SYNC
+R_NUM=10
+CHECK_AND_SYNC
+R_NUM=11
+CHECK_AND_SYNC
+R_NUM=12
+CHECK_AND_SYNC
+R_NUM=13
+CHECK_AND_SYNC
+R_NUM=14
+CHECK_AND_SYNC
+R_NUM=15
+CHECK_AND_SYNC
+source /etc/lspacks/lspacks.vars
+REPO_VERIFY(){
+if [[ -f /etc/lspacks/repos/repo$R_NUM.conf ]]
+    then source /etc/lspacks/repos/repo$R_NUM.conf
+	 if [[ -d /etc/lspacks/repos/$REPO_ROOT_DIR ]]
+	 then echo "I have successfully synced $REPO_NAME"
+	      echo "achievement get: sync repo$R_NUM"
+	 else
+    if [[ $DEBUG_MODE = 0 ]]
+       then echo "
+I couldn't sync the repos...
+because you told me to help you debug i'll begin debugging.
+First I'll check if your internet connection is the source of the issue,
+please don't kill me while i'm pinging, if the source of the issue isn't your internet connection i'll do some other checks to try to narrow down the source of the problem
+"
+	    INTERNET_CHECK="$(ping www.google.com -c 3)"
+	    if [[ -z $INTERNET_CHECK ]]
+	    then
+		echo "
+You have no internet connection, that explains why i'm unable to sync repos, Please ask me again once you have internet connection"
+		
+	    else
+		echo "
+Your internet connection appears to be solid... i'm not sure what the issue is, my creator is planning to teach me some more debugging techniques but for now i can't help you, I'm sorry $USR"
+	    fi
+    else
+	echo "I couldn't sync repo$R_NUM, I'm sorry $USR "
+	exit
+    fi
+	 fi
+fi }
+R_NUM=1
+REPO_VERIFY
+R_NUM=2
+REPO_VERIFY
+R_NUM=3
+REPO_VERIFY
+R_NUM=4
+REPO_VERIFY
+R_NUM=5
+REPO_VERIFY
+R_NUM=6
+REPO_VERIFY
+R_NUM=7
+REPO_VERIFY
+R_NUM=8
+REPO_VERIFY
+R_NUM=9
+REPO_VERIFY
+R_NUM=10
+REPO_VERIFY
+R_NUM=11
+REPO_VERIFY
+R_NUM=12
+REPO_VERIFY
+R_NUM=13
+REPO_VERIFY
+R_NUM=14
+REPO_VERIFY
+R_NUM=15
+REPO_VERIFY
+;;
+      i )
+	  package="$OPTARG"
+	  user="$(whoami)"
+	  dir=/etc/lspacks/repos
+source $dir/repo1.conf
+if [[ $user = root ]]
+then echo "I WILL NOT INSTALL PACKAGES FOR ROOT!!"
+     exit
+fi                                                  
+function CHECK_REPOS {
+    if [[ -z $packdir ]]
+    then
+    if [[ -f /etc/lspacks/repos/repo$R_NUM.conf ]]
+    then
+	source /etc/lspacks/repos/repo$R_NUM.conf
+    if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_1/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_1/$package/$package"
+     packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_1/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_2/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_2/$package"
+     packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_2/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_3/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_3/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_3/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_4/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_4/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_4/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_5/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_5/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_5/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_6/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_6/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_6/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_7/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_7/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_7/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_8/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_8/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_8/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_9/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_9/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_9/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_10/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_10/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_10/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_11/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_11$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_11/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_12/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_12/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_12/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_13/$package ]]
+then file=$dir/$REPO_ROOT_DIR/$PACK_DIR_13/$package/$package
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_13/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_14/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_14/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_14/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_15/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_15/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_15/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_16/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_16/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_16/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_17/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_17/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_17/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_18/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_18/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_18/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_19/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_19/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_19/$package/"
+fi
+if [[ -d $dir/$REPO_ROOT_DIR/$PACK_DIR_20/$package ]]
+then file="$dir/$REPO_ROOT_DIR/$PACK_DIR_20/$package/$package"
+packdir="$dir/$REPO_ROOT_DIR/$PACK_DIR_20/$package/"
+fi
+    fi
+    fi }
+R_NUM=1
+CHECK_REPOS
+R_NUM=2
+CHECK_REPOS
+R_NUM=3
+CHECK_REPOS
+R_NUM=4
+CHECK_REPOS
+R_NUM=5
+CHECK_REPOS
+R_NUM=6
+CHECK_REPOS
+R_NUM=7
+CHECK_REPOS
+R_NUM=8
+CHECK_REPOS
+R_NUM=9
+CHECK_REPOS
+R_NUM=10
+CHECK_REPOS
+R_NUM=11
+CHECK_REPOS
+R_NUM=12
+CHECK_REPOS
+R_NUM=13
+CHECK_REPOS
+R_NUM=14
+CHECK_REPOS
+R_NUM=15
+CHECK_REPOS
+if [[ -z "$packdir" ]]
+then echo "$package doesn't exist"
+     exit
+fi
+echo $packdir
+cd /etc/lspacks/installedfiles
+if [[ -f ./$package ]]
+then
+    if [[ -z $DEP_RES ]]
+    then 
+	echo "I've already installed this for you before...
+Are you getting dementia or something???"
+	exit
+    fi
+fi
+depfile="/etc/lspacks/depends.txt" 
+source $packdir$package.info
+echo "$REQUIRES" | tr ' ' '\n' > $depfile   
+dep1="$(head -n 1 $depfile| tail -n 1)"
+dep2="$(head -n 2 $depfile| tail -n 1)"
+dep3="$(head -n 3 $depfile| tail -n 1)"
+dep4="$(head -n 4 $depfile| tail -n 1)"
+dep5="$(head -n 5 $depfile| tail -n 1)"
+dep6="$(head -n 6 $depfile| tail -n 1)"
+dep7="$(head -n 7 $depfile| tail -n 1)"
+dep8="$(head -n 8 $depfile| tail -n 1)"
+dep9="$(head -n 9 $depfile| tail -n 1)"
+dep10="$(head -n 10 $depfile| tail -n 1)"
+dep11="$(head -n 11 $depfile| tail -n 1)"
+dep12="$(head -n 12 $depfile| tail -n 1)"
+dep13="$(head -n 13 $depfile| tail -n 1)"
+dep14="$(head -n 14 $depfile| tail -n 1)"
+dep15="$(head -n 15 $depfile| tail -n 1)"
+dep16="$(head -n 16 $depfile| tail -n 1)"
+dep17="$(head -n 17 $depfile| tail -n 1)"
+dep18="$(head -n 18 $depfile| tail -n 1)"
+dep19="$(head -n 19 $depfile| tail -n 1)"
+dep20="$(head -n 20 $depfile| tail -n 1)"
+dep21="$(head -n 21 $depfile| tail -n 1)"
+dep22="$(head -n 22 $depfile| tail -n 1)"
+dep23="$(head -n 23 $depfile| tail -n 1)"
+dep24="$(head -n 24 $depfile| tail -n 1)"
+dep25="$(head -n 25 $depfile| tail -n 1)"
+dep26="$(head -n 26 $depfile| tail -n 1)"
+dep27="$(head -n 27 $depfile| tail -n 1)"
+dep28="$(head -n 28 $depfile| tail -n 1)"
+dep29="$(head -n 29 $depfile| tail -n 1)"
+dep30="$(head -n 30 $depfile| tail -n 1)"
+if [[ -z "$dep1" ]]
+then dep1=1
+fi
+if [[ -z "$dep2" ]]
+then dep2=1
+fi
+if [[ -z "$dep3" ]]
+then dep3=1
+fi
+if [[ -z "$dep4" ]]
+then dep4=1
+fi
+if [[ -z "$dep5" ]]
+then dep5=1
+fi
+if [[ -z "$dep6" ]]
+then dep6=1
+fi
+if [[ -z "$dep7" ]]
+then dep7=1
+fi
+if [[ -z "$dep8" ]]
+then dep8=1
+fi
+if [[ -z "$dep9" ]]
+then dep9=1
+fi
+if [[ -z "$dep10" ]]
+then dep10=1
+fi
+if [[ -z "$dep11" ]]
+then dep11=1
+fi
+if [[ -z "$dep12" ]]
+then dep12=1
+fi
+if [[ -z "$dep13" ]]
+then dep13=1
+fi
+if [[ -z "$dep14" ]]
+then dep14=1
+fi
+if [[ -z "$dep15" ]]
+then dep15=1
+fi
+if [[ -z "$dep16" ]]
+then dep16=1
+fi
+if [[ -z "$dep17" ]]
+then dep17=1
+fi
+if [[ -z "$dep18" ]]
+then dep18=1
+fi
+if [[ -z "$dep19" ]]
+then dep19=1
+fi
+if [[ -z "$dep20" ]]
+then dep20=1
+fi
+if [[ -z "$dep21" ]]
+then dep21=1
+fi
+if [[ -z "$dep22" ]]
+then dep22=1
+fi
+if [[ -z "$dep23" ]]
+then dep23=1
+fi
+if [[ -z "$dep24" ]]
+then dep24=1
+fi
+if [[ -z "$dep25" ]]
+then dep25=1
+fi
+if [[ -z "$dep26" ]]
+then dep26=1
+fi
+if [[ -z "$dep27" ]]
+then dep27=1
+fi
+if [[ -z "$dep28" ]]
+then dep28=1
+fi
+if [[ -z "$dep29" ]]
+then dep29=1
+fi
+if [[ -z "$dep30" ]]
+then dep30=1
+fi
+cd /etc/lspacks
+DEPENDS_CHECK(){
+if [[ $dep != 1 ]]
+then
+    echo "Resolving dependencies..."
+    if [[ ! -f ./installedfiles/$dep ]]
+    then
+	if [[ -f $depfile ]]
+	then
+	    rm $depfile
+	    fi
+	DEP_RES=0 lspacks -i $dep
+	 if [[ ! -f ./installedfiles/$dep ]]
+	 then echo "something fucked up, it's probably your internet"
+	      else dep=1
+	 fi
+fi
+fi }
+dep=$dep1
+DEPENDS_CHECK
+dep1=$dep
+dep=$dep2
+DEPENDS_CHECK
+dep2=$dep
+dep=$dep3
+DEPENDS_CHECK
+dep3=$dep
+dep=$dep4
+DEPENDS_CHECK
+dep4=$dep
+dep=$dep5
+DEPENDS_CHECK
+dep5=$dep
+dep=$dep6
+DEPENDS_CHECK
+dep6=$dep
+dep=$dep7
+DEPENDS_CHECK
+dep7=$dep
+dep=$dep8
+DEPENDS_CHECK
+dep8=$dep
+dep=$dep9
+DEPENDS_CHECK
+dep9=$dep
+dep=$dep10
+DEPENDS_CHECK
+dep10=$dep
+dep=$dep11
+DEPENDS_CHECK
+dep11=$dep
+dep=$dep12
+DEPENDS_CHECK
+dep12=$dep
+dep=$dep13
+DEPENDS_CHECK
+dep13=$dep
+dep=$dep14
+DEPENDS_CHECK
+dep14=$dep
+dep=$dep15
+DEPENDS_CHECK
+dep15=$dep
+dep=$dep16
+DEPENDS_CHECK
+dep16=$dep
+dep=$dep17
+DEPENDS_CHECK
+dep17=$dep
+dep=$dep18
+DEPENDS_CHECK
+dep18=$dep
+dep=$dep19
+DEPENDS_CHECK
+dep19=$dep
+dep=$dep20
+DEPENDS_CHECK
+dep20=$dep
+dep=$dep21
+DEPENDS_CHECK
+dep21=$dep
+dep=$dep22
+DEPENDS_CHECK
+dep22=$dep
+dep=$dep23
+DEPENDS_CHECK
+dep23=$dep
+dep=$dep24
+DEPENDS_CHECK
+dep24=$dep
+dep=$dep25
+DEPENDS_CHECK
+dep25=$dep
+dep=$dep26
+DEPENDS_CHECK
+dep26=$dep
+dep=$dep27
+DEPENDS_CHECK
+dep27=$dep
+dep=$dep28
+DEPENDS_CHECK
+dep28=$dep
+dep=$dep29
+DEPENDS_CHECK
+dep29=$dep
+dep=$dep30
+DEPENDS_CHECK
+dep30=$dep
+cd "$packdir"
+source /etc/lspacks/lspacks.vars
+if [[ $ARCH = 64 ]]
+then
+    if [[ -z $DOWNLOAD_x86_64 ]]
+    then echo "I couldn't find a download URL for 64 bit available, i'll just use the NOARCH version"
+    else DOWNLOAD=$DOWNLOAD_x86_64
+    fi
+fi
+if [[ $ARCH = 32 ]]
+   then echo "WARNING!! I HAVE NOT BEEN TESTED FOR 32 BIT, I MAY NOT SUCCESSFULY INSTALL THIS PROGRAM !!WARNING
+Don't blame me if the package I'm installing doesn't install correctly, it isn't my fault that your processor is from like 1662 or some shit"
+fi
+wget $DOWNLOAD
+source /etc/lspacks/lspacks.vars
+VARS=1
+if [[ $PROPRIETARY_CODECS = 0 ]]
+then
+    if [[ $PYTHON3 = 0 ]]
+    then
+	sudo PYTHON3=yes PROPRIETARY_CODECS=yes sh ./$package.SlackBuild
+	VARS=0
+    else
+	sudo PROPRIETARY_CODECS=yes sh ./$package.SlackBuild
+	VARS=0
+    fi
+fi
+if [[ $PYTHON3 = 0 ]]
+then
+    if [[ $PROPRIETARY_CODECS = 0 ]]
+    then
+        sudo PROPRIETARY_CODECS=yes PYTHON3=yes sh ./$package.SlackBuild
+	VARS=0
+    else
+	sudo PYTHON3=yes sh ./$package.SlackBuild
+	VARS=0
+    fi
+fi
+if [[ $VARS = 1 ]]
+   then sudo sh ./$package.SlackBuild
+fi
+source ./$package.info
+finalpkg="$(find /tmp -maxdepth 1 -name "*$PRGNAM-$VERSION*")"
+if [[ -z $finalpkg ]]
+then
+    if [[ -f /etc/lspacks/installedfiles/$package ]]
+    then
+	rm /etc/lspacks/installedfiles/$package
+    fi
+    if [[ $DEBUG_MODE = 0 ]]
+    then
+	echo "I'm sorry, I couldn't find the compiled package, there are 3 likely reasons for this
+
+1. The slackbuild didn't run properly, there are too many possible causes for me to list without wasting precious hard drive space, it's probably due to shitty internet connection, however, if you think the failure is due to a bug in my code, please email my creator at D00mSlay3r7@protonmail.com
+
+2. The dev who wrote the slackbuild for $package made the compiled package name some nonsensical bullshit that does not follow the common syntax 
+( programname-version )
+
+3. You already have a compiled version of said package in your /tmp directory and I've accidentaly set the finalpkg variable as both, if this is the case, clearing your /tmp directory should fix everything"
+	exit
+    else
+	echo "I couldn't find the compiled package, i'm going to stop the installation here, sorry"
+	exit
+    fi
+fi
+   if [[  -f /etc/lspacks/installedfiles/$PRGNAM ]]
+   then rm /etc/lspacks/installedfiles/$PRGNAM
+   fi
+sudo /sbin/installpkg $finalpkg
+echo "installed" >> /etc/lspacks/installedfiles/$PRGNAM
+if [[ -f $depfile ]]
+then rm $depfile
+fi
+;;
+      v )
+	  echo "
+#       ####### #######  #######  ####### #   # #######  
+#       #       #     #  #     #  #       #  #  #         
+#       #       #     #  #     #  #       # #   #          
+#       ####### #######  #######  #       ##    #######    
+#             # #        #     #  #       # #         #      
+#             # #        #     #  #       #  #        #      
+####### ####### #        #     #  ####### #   # #######      
+LsPacksV2 (Extend) Version 0.0.1 
+Written by D00mSlay3r7"
+	  ;;
+      \?)
+	  echo " I'm sorry, I haven't been taught how to respond to -$OPTARG, these are the flags i understand
+LsPacks usage:
+
+lspacks [-i PACKAGE] Install a package
+lspacks [-s] Sync repos
+lspacks [-v] Display version
+lspacks [-c] Change the way LsPacks behaves
+lspacks [-R] Configure a new repo"
+	  
+	  ;;
+      c )
+	  echo "which setting would you like to change?
+(Answers: DebugMode, ProprietaryCodecs, Python3)
+"
+	  read VAR
+	  source /etc/lspacks/lspacks.vars
+	  if [[ $VAR == DebugMode ]]
+	  then
+	      if [[ $DEBUG_MODE = 1 ]]
+	      then
+		  echo "I'll help you with debugging from now on"
+		  DEBUG_MODE=0 VAR_SET=0
+	      fi
+	      if [[ $DEBUG_MODE = 0 ]]
+	      then
+		  if [[ -z $VAR_SET ]]
+		     then
+		   echo "I'll stop helping you with debugging from now on"
+		   DEBUG_MODE=1 VAR_SET=0
+		  fi
+	      fi
+	  fi
+	  if [[ $VAR == Python3 ]]
+	  then
+	      if [[ $PYTHON3 = 0 ]]
+	      then echo "I'll tell packages dependant on Python not to use Python3 from now on"
+		   PYTHON3=1 VAR_SET=0
+	      fi
+	      if [[ $PYTHON3 = 1 ]]
+	      then
+		  if [[ -z $VAR_SET ]]
+		     then
+		  echo "i'll tell packages dependant on Python to use Python3 from now on"
+		   PYTHON3=0 VAR_SET=0
+	      fi
+	    fi  
+	  fi
+	  if [[ $VAR == ProprietaryCodecs ]]
+	  then
+	      if [[ $PROPRIETARY_CODECS = 1 ]]
+	      then
+		  echo "I'll start installing proprietary codecs from now on if you insist...
+I'm disappointed in you though..."
+		  PROPRIETARY_CODECS=0 VAR_SET=0
+	      fi
+	      if [[ $PROPRIETARY_CODECS = 0 ]]
+	      then
+		  if [[ -z $VAR_SET ]]
+		     then
+		  echo "I'll stop installing proprietary codecs for you from now on, thank god..."
+		  PROPRIETARY_CODECS=1
+	      fi
+	      fi
+	  fi
+sudo rm /etc/lspacks/lspacks.vars
+echo "
+PROPRIETARY_CODECS=$PROPRIETARY_CODECS
+PYTHON3=$PYTHON3
+ARCH=$ARCH
+VERSION=$VERSION
+DEBUG_MODE=$DEBUG_MODE
+" >> /etc/lspacks/lspacks.vars
+	  sudo chmod 777 /etc/lspacks/lspacks.vars
+	  echo "
+Done!"
+	  ;;
+      R )
+	  echo "I'll help you configure a new SlackBuilds repo for me"
+	  echo "What is the name of the new repo you wish to configure"
+	  read REPONAME
+	  echo "What is the git url of $REPONAME's root directory"
+	  echo "eg. git://git.slackbuilds.org/slackbuilds.git"
+	  read REPO_GIT_URL
+	  echo "what is the name of the repo's root directory"
+	  echo "eg. (this is an example from the current SlackBuilds official repo) slackbuilds"
+	  echo 'please do not put any of the following characters in the name: / : . "#" * & $'
+          read REPO_ROOT_DIR
+	  echo "how many sub-directories does $REPONAME have?"
+	  echo "the sub-directories must be the directories containing the files for each program"
+	  read SUB_DIR_NUM
+	  if [[ $SUB_DIR_NUM > 20 ]]
+	  then echo "I'm sorry, LsPacks only supports a maximum of 20 subdirectories at the moment"
+	  fi
+	      echo "what is the name of subdirectory 1?"
+	      echo  "eg. (these are examples from the current official slackbuilds repo) python, perl, ruby, ETC"
+	      read PACK_DIR_1
+	      template="
+REPONAME='$REPONAME'
+REPO_GIT_URL='$REPO_GIT_URL'
+REPO_ROOT_DIR='$REPO_ROOT_DIR'
+SUB_DIR_NUM='$SUB_DIR_NUM'
+PACK_DIR_1=$PACK_DIR_1
+PACK_DIR_2=$PACK_DIR_2
+PACK_DIR_3=$PACK_DIR_3
+PACK_DIR_4=$PACK_DIR_4
+PACK_DIR_5=$PACK_DIR_5
+PACK_DIR_6=$PACK_DIR_6
+PACK_DIR_7=$PACK_DIR_7
+PACK_DIR_8=$PACK_DIR_8
+PACK_DIR_9=$PACK_DIR_9
+PACK_DIR_10=$PACK_DIR_10
+PACK_DIR_11=$PACK_DIR_11
+PACK_DIR_12=$PACK_DIR_12
+PACK_DIR_13=$PACK_DIR_13
+PACK_DIR_14=$PACK_DIR_14
+PACK_DIR_15=$PACK_DIR_15
+PACK_DIR_16=$PACK_DIR_16
+PACK_DIR_17=$PACK_DIR_17
+PACK_DIR_18=$PACK_DIR_18
+PACK_DIR_19=$PACK_DIR_19
+PACK_DIR_20=$PACK_DIR_20
+" >> /etc/lspacks/repos/repo1.conf
+sudo chmod 777 /etc/lspacks/repos/repo1.conf
+	      if [[ $SUB_DIR_NUM = 2 ]]
+	      then echo "what is the name of subdirectory 2?"
+		   read PACK_DIR_2
+	      fi
+	      if [[ $SUB_DIR_NUM > 2 ]]
+		 then echo "what is the name of subdirectory 2?"
+		      read PACK_DIR_2
+	      fi
+	      if [[ $SUB_DIR_NUM = 3 ]]
+	      then echo "what is the name of subdirectory 3?"
+		   read PACK_DIR_3
+	      fi
+	      if [[ $SUB_DIR_NUM > 3 ]]
+		 then echo "what is the name of subdirectory 3?"
+		      read PACK_DIR_3
+	      fi
+	      if [[ $SUB_DIR_NUM = 4 ]]
+	      then echo "what is the name of subdirectory 4?"
+		   read PACK_DIR_4
+	      fi
+	      if [[ $SUB_DIR_NUM > 4 ]]
+		 then echo "what is the name of subdirectory 4?"
+		      read PACK_DIR_4
+	      fi
+	      if [[ $SUB_DIR_NUM = 5 ]]
+	      then echo "what is the name of subdirectory 5?"
+		   read PACK_DIR_5
+	      fi
+	      if [[ $SUB_DIR_NUM > 5 ]]
+		 then echo "what is the name of subdirectory 5?"
+		      read PACK_DIR_5
+	      fi
+	      if [[ $SUB_DIR_NUM = 6 ]]
+	      then echo "what is the name of subdirectory 6?"
+		   read PACK_DIR_6
+	      fi
+	      if [[ $SUB_DIR_NUM > 6 ]]
+		 then echo "what is the name of subdirectory 6?"
+		      read PACK_DIR_6
+	      fi
+	      if [[ $SUB_DIR_NUM = 7 ]]
+	      then echo "what is the name of subdirectory 7?"
+		   read PACK_DIR_7
+	      fi
+	      if [[ $SUB_DIR_NUM > 7 ]]
+		 then echo "what is the name of subdirectory 7?"
+		      read PACK_DIR_7
+	      fi
+	      if [[ $SUB_DIR_NUM = 8 ]]
+	      then echo "what is the name of subdirectory 8?"
+		   read PACK_DIR_8
+	      fi
+	      if [[ $SUB_DIR_NUM > 8 ]]
+		 then echo "what is the name of subdirectory 8?"
+		      read PACK_DIR_8
+	      fi
+	      if [[ $SUB_DIR_NUM = 9 ]]
+	      then echo "what is the name of subdirectory 9?"
+		   read PACK_DIR_9
+	      fi
+	      if [[ $SUB_DIR_NUM > 9 ]]
+		 then echo "what is the name of subdirectory 9?"
+		      read PACK_DIR_9
+	      fi
+	      if [[ $SUB_DIR_NUM = 10 ]]
+	      then echo "what is the name of subdirectory 10?"
+		   read PACK_DIR_10
+	      fi
+	      if [[ $SUB_DIR_NUM > 10 ]]
+		 then echo "what is the name of subdirectory 10?"
+		      read PACK_DIR_10
+	      fi
+	      if [[ $SUB_DIR_NUM = 11 ]]
+	      then echo "what is the name of subdirectory 11?"
+		   read PACK_DIR_11
+	      fi
+	      if [[ $SUB_DIR_NUM > 11 ]]
+		 then echo "what is the name of subdirectory 11?"
+		      read PACK_DIR_11
+	      fi
+	      if [[ $SUB_DIR_NUM = 12 ]]                             
+	      then echo "what is the name of subdirectory 12?"
+		   read PACK_DIR_12
+	      fi
+	      if [[ $SUB_DIR_NUM > 12 ]]
+		 then echo "what is the name of subdirectory 12?"
+		      read PACK_DIR_12
+	      fi
+	      if [[ $SUB_DIR_NUM = 13 ]]
+	      then echo "what is the name of subdirectory 13?"
+		   read PACK_DIR_13
+	      fi
+	      if [[ $SUB_DIR_NUM > 13 ]]
+		 then echo "what is the name of subdirectory 13?"
+		      read PACK_DIR_13
+	      fi
+	      if [[ $SUB_DIR_NUM = 14 ]]
+	      then echo "what is the name of subdirectory 14?"
+		   read PACK_DIR_14
+	      fi
+	      if [[ $SUB_DIR_NUM > 14 ]]
+		 then echo "what is the name of subdirectory 14?"
+		      read PACK_DIR_14
+	      fi
+	      if [[ $SUB_DIR_NUM = 15 ]]
+	      then echo "what is the name of subdirectory 15?"
+		   read PACK_DIR_15
+	      fi
+	      if [[ $SUB_DIR_NUM > 15 ]]
+		 then echo "what is the name of subdirectory 15?"
+		      read PACK_DIR_15
+	      fi
+	      if [[ $SUB_DIR_NUM = 16 ]]
+	      then echo "what is the name of subdirectory 16?"
+		   read PACK_DIR_16
+	      fi
+	      if [[ $SUB_DIR_NUM > 16 ]]
+		 then echo "what is the name of subdirectory 16?"
+		      read PACK_DIR_16
+	      fi
+	      if [[ $SUB_DIR_NUM = 17 ]]
+	      then echo "what is the name of subdirectory 17?"
+		   read PACK_DIR_17
+	      fi
+	      if [[ $SUB_DIR_NUM > 17 ]]
+		 then echo "what is the name of subdirectory 17?"
+		      read PACK_DIR_17
+	      fi
+	      if [[ $SUB_DIR_NUM = 18 ]]
+	      then echo "what is the name of subdirectory 18?"
+		   read PACK_DIR_18
+	      fi
+	      if [[ $SUB_DIR_NUM > 18 ]]
+		 then echo "what is the name of subdirectory 18?"
+		      read PACK_DIR_18
+	      fi
+	      if [[ $SUB_DIR_NUM = 19 ]]
+	      then echo "what is the name of subdirectory 19?"
+		   read PACK_DIR_19
+	      fi
+	      if [[ $SUB_DIR_NUM > 19 ]]
+		 then echo "what is the name of subdirectory 19?"
+		      read PACK_DIR_19
+	      fi
+	      if [[ $SUB_DIR_NUM = 20 ]]
+	      then echo "what is the name of subdirectory 20?"
+		   read PACK_DIR_20
+	      fi
+	      if [[ $SUB_DIR_NUM > 20 ]]
+		 then echo "what is the name of subdirectory 20?"
+		      read PACK_DIR_20
+	      fi
+	      if [[ ! -f /etc/lspacks/repos/repo2.conf ]]
+		  then
+		      echo "$template" >> /etc/lspacks/repos/repo2.conf
+		      sudo chmod 777 /etc/lspacks/repos/repo2.conf
+	      else
+		  if [[ ! -f /etc/lspacks/repos/repo3.conf ]]
+		  then
+		      echo "$template" >> /etc/lspacks/repos/repo3.conf
+		      sudo chmod 777 /etc/lspacks/repos/repo3.conf
+		  else
+		      if [[ ! -f /etc/lspacks/repos/repo4.conf ]]
+		      then
+			  echo "$template" >> /etc/lspacks/repos/repo4.conf
+			  sudo chmod 777 /etc/lspacks/repos/repo4.conf
+		      else
+			  if [[ ! -f /etc/lspacks/repos/repo5.conf ]]
+			  then
+			      echo "$template" >> /etc/lspacks/repos/repo5.conf
+			      sudo chmod 777 /etc/lspacks/repos/repo5.conf
+			  else
+			      if [[ ! -f /etc/lspacks/repos/repo6.conf ]]
+			      then
+				  echo "$template" >> /etc/lspacks/repos/repo6.conf
+				  sudo chmod 777 /etc/lspacks/repos/repo6.conf
+			      else
+				  if [[ ! -f /etc/lspacks/repos/repo7.conf ]]
+				  then
+				      echo "$template" >> /etc/lspacks/repos/repo7.conf
+				      sudo chmod 777 /etc/lspacks/repos/repo7.conf
+				  else
+				      if [[ ! -f /etc/lspacks/repos/repo8.conf ]]
+				      then
+					  echo "$template" >> /etc/lspacks/repos/repo8.conf
+					  sudo chmod 777 /etc/lspacks/repos/repo8.conf
+				      else
+					  if [[ ! -f /etc/lspacks/repos/repo9.conf ]]
+					  then
+					      echo "$template" >> /etc/lspacks/repos/repo9.conf
+					      sudo chmod 777 /etc/lspacks/repos/repo9.conf
+					  else
+					      if [[ ! -f /etc/lspacks/repos/repo10.conf ]]
+					      then
+						  echo "$template" >> /etc/lspacks/repos/repo10.conf
+						  sudo chmod 777 /etc/lspacks/repos/repo10.conf
+					      else
+						  if [[ ! -f /etc/lspacks/repos/repo11.conf ]]
+						  then
+						      echo "$template" >> /etc/lspacks/repos/repo11.conf
+						      sudo chmod 777 /etc/lspacks/repos/repo11.conf
+						  else
+						      if [[ ! -f /etc/lspacks/repos/repo12.conf ]]
+						      then
+							  echo "$template" >> /etc/lspacks/repos/repo12.conf
+							  sudo chmod 777 /etc/lspacks/repos/repo12.conf
+						      else
+							  if [[ ! -f /etc/lspacks/repos/repo13.conf ]]
+							  then
+							      echo "$template" >> /etc/lspacks/repos/repo13.conf
+							      sudo chmod 777 /etc/lspacks/repos/repo13.conf
+							  else
+							      if [[ ! -f /etc/lspacks/repos/repo14.conf ]]
+							      then
+								  echo "$template" >> /etc/lspacks/repos/repo14.conf
+								  sudo chmod 777 /etc/lspacks/repos/repo14.conf
+							      else
+								  if [[ ! -f /etc/lspacks/repos/repo15.conf ]]
+								  then
+								      echo "$template" >> /etc/lspacks/repos/repo15.conf
+								      sudo chmod 777 /etc/lspacks/repos/repo15.conf
+								  else
+								      echo " All repo files are full, delete a repofile and try again"
+								  fi
+							      fi
+							  fi
+						      fi
+						  fi
+					      fi
+					  fi
+				      fi
+				  fi
+			      fi
+			  fi
+		      fi
+		  fi
+	      fi
+    esac
+done
+if [[ $OPTIND = 1 ]]
+then
+    echo "I'm sorry $user, i can't do what you want unless you tell me what you want with a flag like this:
+
+lspacks [-i PACKAGE] Install a package
+lspacks [-s] Sync repos
+lspacks [-v] Display version
+lspacks [-c] Change the way LsPacks behaves
+lspacks [-R] Configure a new repo"
+fi
+
+
