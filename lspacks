@@ -125,7 +125,8 @@ CHECK_AND_DELETE
 CHECK_AND_SYNC(){
 if [[ -f /etc/lspacks/repos/repo$R_NUM.conf ]]
 then
-    source /etc/lspacks/repos/repo$R_NUM.conf
+    cd /etc/lspacks/repos
+    source ./repo$R_NUM.conf
     git clone $REPO_GIT_URL
     sudo chmod -R 777 /etc/lspacks/repos/$REPO_ROOT_DIR
 fi }
